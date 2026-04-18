@@ -7,6 +7,35 @@ const WHATSAPP_MESSAGE = encodeURIComponent(
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`
 const INSTAGRAM_URL = 'https://instagram.com/paulaviena_psicanalista'
 
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Paula Viena',
+  url: 'https://paulaviena.com',
+  description:
+    'Psicanalista com atendimento para adultos — presencial e online. Especializada em ansiedade, angústia e saúde mental.',
+  jobTitle: 'Psicanalista',
+  sameAs: [
+    'https://instagram.com/paulaviena_psicanalista',
+    'https://wa.me/5547999949255',
+  ],
+}
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Paula Viena — Psicanalista',
+  url: 'https://paulaviena.com',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: 'https://paulaviena.com/?q={search_term_string}',
+    },
+    'query-input': 'required name=search_term_string',
+  },
+}
+
 function Magnolia() {
   return (
     <svg
@@ -39,7 +68,16 @@ function Magnolia() {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#6c2c72] text-white font-sans">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <main className="min-h-screen bg-[#6c2c72] text-white font-sans">
       {/* ── Hero (purple) ─────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         {/* Decorative magnolia */}
@@ -204,6 +242,7 @@ export default function Home() {
           </p>
         </div>
       </section>
-    </main>
+      </main>
+    </>
   )
 }

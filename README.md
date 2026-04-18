@@ -1,90 +1,59 @@
-# Invoice Generator
+# Paula Viena — Psicanalista
 
-A fast, browser-based invoice builder. Fill in your details, preview the result, and use the browser's built-in Print → Save as PDF to generate a clean, professional invoice — no backend, no accounts, no data ever leaves your machine.
+Landing page estática para **Paula Viena**, psicanalista. Construída com Next.js (export estático) e publicada no Cloudflare Pages.
 
-**Live URL:** https://paula-viena.pages.dev
-
----
-
-## What it does
-
-You fill out a form with all the invoice data and the app renders a print-ready layout that matches a standard professional invoice format. When you're happy with it, clicking **Print / Save as PDF** opens the browser's print dialog where you can save it directly as a PDF.
-
-The form covers everything a typical invoice needs:
-
-- **Invoice details** — number, status (pending / paid / overdue / draft), date, and currency (USD, EUR, GBP, BRL, CAD, AUD)
-- **Bill From** — your company name and address.
-- **Bill To** — client name and address
-- **Tax details** — optional field for VAT number or tax ID
-- **Line items** — add as many rows as needed, each with description, quantity, unit, and rate; totals are calculated live
-- **VAT** — enter a percentage and the amount is computed automatically
-- **Footer** — contact number, notes, and a reference ID
-
-A **Preview Invoice** button lets you see a scaled-down version of the final document before printing, with a Print button right inside the modal.
+**URL:** https://paula-viena.pages.dev
 
 ---
 
-## Print layout
+## O que a página traz
 
-The printed output (and PDF) follows a clean, structured format:
+Uma página única (one-pager) em português, no mesmo visual do flyer digital de Paula: fundo roxo na seção hero, bloco verde com a foto e informações de atendimento, e um rodapé com botões de contato.
 
-```
-Company Name                          I N V O I C E
+- Headline: _"Você aprendeu a ser forte para todo mundo. Mas quem cuida de você?"_
+- CTA principal abre o **WhatsApp** (`47 99994-9255`) com uma mensagem inicial já escrita
+- Link secundário para o Instagram **@paulaviena_psicanalista**
+- Atendimento: análise para adultos, presencial e online
 
-Bill To:                              # EINV-2026-10
-  Client Name                         Status   pending
-  Address                             Date     March 24, 2026
-  City / ZIP / Country                Total    USD 7,650.00
+### Compartilhamento em redes sociais
 
-Bill From:                Tax Details:
-  Your Company              (optional tax info)
-  Address
-
-┌─────────────────────────┬────────────┬───────────┬───────────┐
-│ DESCRIPTION             │ QTY (UNIT) │    RATE   │   TOTAL   │
-├─────────────────────────┼────────────┼───────────┼───────────┤
-│ Software development    │  1 (items) │ USD 7,650 │ USD 7,650 │
-│                         │            │       VAT │  USD 0.00 │
-│                         │            │ Total Due │ USD 7,650 │
-└─────────────────────────┴────────────┴───────────┴───────────┘
-
-Contact: +55 47 99240 2547        Your Company Name (cursive)
-
-Note  - Contract value
-      - English lessons
-
-REF: a2bbb9c8-...                            PAGE 1 OUT OF 1
-```
+A página inclui `og:image` e `twitter:card` (1200×630) com a foto de Paula, nome e frase principal, então o preview no WhatsApp, Instagram Direct, Facebook, LinkedIn e Twitter/X mostra a imagem correta em vez de um quadrado em branco.
 
 ---
 
-## Tech stack
+## Stack
 
-| Layer          | Choice                                            |
-| -------------- | ------------------------------------------------- |
-| Framework      | Next.js 15 (static export)                        |
-| Styling        | Tailwind CSS v3 with dark mode (`media` strategy) |
-| Fonts          | Inter (UI), Dancing Script (invoice signature)    |
-| Deployment     | Cloudflare Pages via Wrangler                     |
-| PDF generation | Browser native Print → Save as PDF                |
+| Camada      | Escolha                           |
+| ----------- | --------------------------------- |
+| Framework   | Next.js 16 (`output: 'export'`)   |
+| Styling     | Tailwind CSS v4                   |
+| Fontes      | Inter (UI) + Dancing Script (logo)|
+| Hospedagem  | Cloudflare Pages via Wrangler     |
 
-No external PDF libraries. No server. No database.
+Site 100% estático — sem backend, sem banco de dados.
 
 ---
 
-## Running locally
+## Desenvolvimento
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Abra [http://localhost:3000](http://localhost:3000).
 
-## Building & deploying
+## Build & deploy
 
 ```bash
 npm run deploy
 ```
 
-This runs `next build` and then `wrangler pages deploy` to push to Cloudflare Pages.
+Roda `next build` (gera `./dist/`) e em seguida `wrangler pages deploy` para publicar no Cloudflare Pages.
+
+## Onde mexer
+
+- `app/page.tsx` — conteúdo e layout da landing page
+- `app/layout.tsx` — metadados (title, OG image, Twitter card, ícones)
+- `public/` — foto `paula.png`, imagem de preview `og-image.png`, favicons
+- `wrangler.toml` — configuração do Cloudflare Pages

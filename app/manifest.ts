@@ -4,13 +4,15 @@ export const dynamic = 'force-static'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Invoice Generator',
-    short_name: 'Invoices',
-    description: 'Create and print professional invoices for free, right in your browser.',
+    name: 'Paula Viena — Psicanalista',
+    short_name: 'Paula Viena',
+    description:
+      'Atendimento psicanalítico para adultos — presencial e online. Agende uma conversa inicial.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#f9fafb',
-    theme_color: '#2563eb',
+    background_color: '#6c2c72',
+    theme_color: '#6c2c72',
+    lang: 'pt-BR',
     icons: [
       {
         src: '/icon-192.png',

@@ -1,0 +1,10 @@
+# Cloudflare Pages configuration
+name = "paula-viena"
+compatibility_date = "2026-04-13"
+
+[assets]
+directory = "./dist"
+
+# Uncomment to add environment variables:
+# [vars]
+# MY_VAR = "value"

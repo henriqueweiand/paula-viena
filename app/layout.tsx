@@ -4,7 +4,7 @@ import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
-const BASE_URL = 'https://paula-viena.henriqueweiand.workers.dev'
+const BASE_URL = 'https://paulaviena.com'
 const SITE_NAME = 'Paula Viena — Psicanalista'
 const TITLE =
   'Paula Viena — Psicanalista | Análise para adultos · Presencial e online'

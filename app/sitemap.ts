@@ -5,7 +5,7 @@ export const dynamic = 'force-static'
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: 'https://paula-viena.henriqueweiand.workers.dev',
+      url: 'https://paulaviena.com',
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 1,

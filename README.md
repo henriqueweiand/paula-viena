@@ -2,7 +2,7 @@
 
 Landing page estática para **Paula Viena**, psicanalista. Construída com Next.js (export estático) e publicada no Cloudflare Pages.
 
-**URL:** https://paula-viena.pages.dev
+**URL:** https://paulaviena.com
 
 ---
 

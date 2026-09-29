@@ -1,6 +1,6 @@
 # Paula Viena — Psicanalista
 
-Landing page estática para **Paula Viena**, psicanalista. Construída com Next.js (export estático) e publicada no Cloudflare Pages.
+Landing page estática para **Paula Viena**, psicanalista. Construída com Next.js (export estático) e publicada no Cloudflare Workers (static assets).
 
 **URL:** https://paulaviena.com
 
@@ -28,7 +28,7 @@ A página inclui `og:image` e `twitter:card` (1200×630) com a foto de Paula, no
 | Framework   | Next.js 16 (`output: 'export'`)   |
 | Styling     | Tailwind CSS v4                   |
 | Fontes      | Inter (UI) + Dancing Script (logo)|
-| Hospedagem  | Cloudflare Pages via Wrangler     |
+| Hospedagem  | Cloudflare Workers via Wrangler   |
 
 Site 100% estático — sem backend, sem banco de dados.
 
@@ -45,15 +45,19 @@ Abra [http://localhost:3000](http://localhost:3000).
 
 ## Build & deploy
 
+Cada push na `main` publica automaticamente via Cloudflare Workers Builds. Para publicar manualmente:
+
 ```bash
 npm run deploy
 ```
 
-Roda `next build` (gera `./dist/`) e em seguida `wrangler pages deploy` para publicar no Cloudflare Pages.
+Roda `next build` (gera `./dist/`) e em seguida `wrangler deploy` para publicar no Cloudflare Workers.
+
+O Dependabot abre PRs semanais de atualização: patch e minor entram automaticamente, major aguardam revisão.
 
 ## Onde mexer
 
 - `app/page.tsx` — conteúdo e layout da landing page
 - `app/layout.tsx` — metadados (title, OG image, Twitter card, ícones)
 - `public/` — foto `paula.png`, imagem de preview `og-image.png`, favicons
-- `wrangler.toml` — configuração do Cloudflare Pages
+- `wrangler.toml` — configuração do Cloudflare Workers

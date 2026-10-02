@@ -1,0 +1,89 @@
+# Tells the IndexNow engines when the site changes.
+#
+# IndexNow is a ping, not a crawl: one request lists the URLs that changed and Bing,
+# Yandex, Seznam and Naver fetch them rather than waiting to rediscover them. Google does
+# not take part — it reads the sitemap, which robots.txt declares.
+#
+# Authentication is a key hosted at the site root, which is public by design, so it lives
+# in the repository next to the pages it authorises.
+name: IndexNow
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'public/**'
+      - 'components/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: indexnow
+  cancel-in-progress: false
+
+jobs:
+  submit:
+    name: Submit URLs
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      SITE: https://paulaviena.com
+      KEY: 6400be99b25d88a6eca8e7e3dd52995c
+
+    steps:
+      # Workers Builds deploys in parallel with this, so submitting straight away would
+      # announce pages that have not been replaced yet. Wait for the key file to be live:
+      # the engines fetch it to verify the submission, so it is the one URL that must be
+      # reachable before the ping is worth making.
+      - name: Wait for the deploy to land
+        id: wait
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE/$KEY.txt" || echo 000)
+            echo "attempt $attempt: key file HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "ready=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "Key file never became reachable; not submitting."
+          echo "ready=false" >> "$GITHUB_OUTPUT"
+
+      - name: Submit to IndexNow
+        if: steps.wait.outputs.ready == 'true'
+        run: |
+          set -uo pipefail
+          curl -fsS "$SITE/sitemap.xml" -o sitemap.xml || { echo "No sitemap; nothing to announce."; exit 0; }
+          grep -oE '<loc>[^<]*</loc>' sitemap.xml | sed 's/<loc>//; s|</loc>||' > urls.txt
+          echo "Submitting $(wc -l < urls.txt) urls:"
+          sed 's/^/  /' urls.txt
+
+          python3 - <<'PY' > body.json
+          import json, os
+          urls = [u.strip() for u in open('urls.txt') if u.strip()]
+          print(json.dumps({
+              "host": "paulaviena.com",
+              "key": os.environ["KEY"],
+              "keyLocation": f"{os.environ['SITE']}/{os.environ['KEY']}.txt",
+              "urlList": urls,
+          }))
+          PY
+
+          code=$(curl -sS -o response.txt -w '%{http_code}' \
+            -X POST 'https://api.indexnow.org/IndexNow' \
+            -H 'Content-Type: application/json; charset=utf-8' \
+            --data @body.json)
+          echo "IndexNow responded $code"
+          sed 's/^/  /' response.txt || true
+          # A ping to a third party must not fail the pipeline; the sitemap still covers
+          # discovery whether or not this is accepted.
+          case "$code" in
+            200|202) echo "Accepted." ;;
+            *) echo "::warning::IndexNow returned $code; the sitemap still covers discovery." ;;
+          esac

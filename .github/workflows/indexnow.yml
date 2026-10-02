@@ -19,6 +19,8 @@ on:
 
 permissions:
   contents: read
+  # Reading the deploy's check run on this commit.
+  checks: read
 
 concurrency:
   group: indexnow
@@ -35,24 +37,42 @@ jobs:
       KEY: 6400be99b25d88a6eca8e7e3dd52995c
 
     steps:
-      # Workers Builds deploys in parallel with this, so submitting straight away would
-      # announce pages that have not been replaced yet. Wait for the key file to be live:
-      # the engines fetch it to verify the submission, so it is the one URL that must be
-      # reachable before the ping is worth making.
-      - name: Wait for the deploy to land
+      # Wait for *this commit's* deploy, not for something that happens to be
+      # reachable. The previous version waited for the key file, which never
+      # changes between deploys — so once it existed the check passed instantly
+      # and the submission could announce the site as it was before the push.
+      # The equivalent step on Calendar-Notes-Manager made exactly that mistake
+      # twice, and announced the previous state both times.
+      #
+      # Workers Builds reports a check run against the commit, so that is the
+      # thing worth waiting on: it is true only when what is live is what was
+      # pushed.
+      - name: Wait for this commit to be deployed
         id: wait
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
         run: |
-          set -euo pipefail
+          set -uo pipefail
           for attempt in $(seq 1 30); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE/$KEY.txt" || echo 000)
-            echo "attempt $attempt: key file HTTP $code"
-            if [ "$code" = "200" ]; then
-              echo "ready=true" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
+            state=$(gh api "repos/$REPO/commits/$SHA/check-runs" \
+              --jq '.check_runs[] | select(.name | test("Workers Builds")) | "\(.status)|\(.conclusion // "")"' 2>/dev/null | head -1)
+            echo "attempt $attempt: deploy ${state:-not reported yet}"
+            case "$state" in
+              completed\|success)
+                echo "ready=true" >> "$GITHUB_OUTPUT"
+                exit 0
+                ;;
+              completed\|*)
+                echo "Deploy did not succeed; not submitting."
+                echo "ready=false" >> "$GITHUB_OUTPUT"
+                exit 0
+                ;;
+            esac
             sleep 20
           done
-          echo "Key file never became reachable; not submitting."
+          echo "Deploy never reported; not submitting."
           echo "ready=false" >> "$GITHUB_OUTPUT"
 
       - name: Submit to IndexNow
